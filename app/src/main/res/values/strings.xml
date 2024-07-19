@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">pickride</string>
+    <!--    <string name="google_maps_key" translatable="false">AIzaSyCvPWhhqIHPaStCE_SaSTVc2hWIbstHIPY</string>-->
+    <string name="google_maps_key" translatable="false">AIzaSyDz6KVQYYmsnvbMRFOvGl2sZr7t2UUL67c</string>
+    <string name="title_activity_maps">MapsActivity</string>
+
+    <string name="button1_prompt">Select Action</string>
+    <string name="button2_prompt">Select Route</string>
+    <string-array name="button1_options">
+        <item>Calculate Point</item>
+        <item>Build Geofence</item>
+    </string-array>
+    <string-array name="button2_options">
+        <item>Route A-Star</item>
+        <item>Route Djikstra</item>
+    </string-array>
+</resources>

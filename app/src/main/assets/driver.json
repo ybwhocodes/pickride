@@ -1,0 +1,38 @@
+[
+  {
+    "drivers": [
+      {
+        "name" : "Driver 1",
+        "coordinates":
+        {
+          "lat": -7.972174,
+          "lng": 112.618853
+        }
+      },
+      {
+        "name" : "Driver 2",
+        "coordinates":
+        {
+          "lat": -7.962085,
+          "lng": 112.625219
+        }
+      },
+      {
+        "name" : "Driver 3",
+        "coordinates":
+        {
+          "lat": -7.963879,
+          "lng": 112.614065
+        }
+      },
+      {
+        "name" : "Driver 4",
+        "coordinates":
+        {
+          "lat": -7.969046,
+          "lng": 112.620291
+        }
+      }
+    ]
+  }
+]
