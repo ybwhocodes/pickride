@@ -28,7 +28,6 @@ public class RouteCalculator {
         List<Route> routes = RouteLoader.loadRoutes(context);
         List<LatLng> destinations = new ArrayList<>();
         double timeInHours = timeInMinutes / 60.0;
-//        double averageSpeed = calculateAverageSpeed(routes);
         double averageSpeed = 50;
         double radius = (((averageSpeed * timeInHours)/2) * 1000);
 

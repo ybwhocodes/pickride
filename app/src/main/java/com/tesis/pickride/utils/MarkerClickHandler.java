@@ -1,6 +1,8 @@
 package com.tesis.pickride.utils;
 
 import android.graphics.Color;
+import android.util.Log;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -52,7 +54,7 @@ public class MarkerClickHandler implements GoogleMap.OnMapClickListener {
         }
         startPointCircle = mMap.addCircle(new CircleOptions()
                 .center(startPoint)
-                .radius(5)
+                .radius(2)
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.BLACK));
 
@@ -62,7 +64,9 @@ public class MarkerClickHandler implements GoogleMap.OnMapClickListener {
         connectionLine = mMap.addPolyline(new PolylineOptions()
                 .add(latLng, startPoint)
                 .color(Color.BLACK)
-                .pattern(Arrays.asList(new Dot(), new Gap(10))));
+                .pattern(Arrays.asList(new Dot(), new Gap(20))));
+        Log.d("map click", startPoint+" map click");
+
     }
 
     private LatLng findNearestPointOnPolyline(LatLng userPoint) {
