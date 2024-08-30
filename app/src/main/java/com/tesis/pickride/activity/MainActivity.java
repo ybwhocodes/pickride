@@ -1,14 +1,11 @@
 package com.tesis.pickride.activity;
 
-import static android.content.ContentValues.TAG;
-
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -28,6 +25,7 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.tesis.pickride.R;
 import com.tesis.pickride.core.GeofenceTime;
+import com.tesis.pickride.core.Graph;
 import com.tesis.pickride.model.Route;
 import com.tesis.pickride.model.RoutePoint;
 import com.tesis.pickride.utils.MapDriver;
@@ -91,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             markerClickHandler.reset(); // Reset marker click handler
             timeInput.setText(""); // Clear the time input field
 
+            mapDriver.resetDriver();
+
             // Clear the polygon if it exists
             if (currentPolygon != null) {
                 currentPolygon.remove();
@@ -148,16 +148,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else {
                                 // Add new markers
 //                                Toast.makeText(MainActivity.this, "Data Update = " + updatedDestinations.size() + " Data Old =  "+ destinations.size(), Toast.LENGTH_LONG).show();
-                                for (LatLng updatedDestination : updatedDestinations) {
-                                    Marker marker = mMap.addMarker(new MarkerOptions()
-                                            .position(updatedDestination)
-                                            .title("Updated Destination")
-                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-                                    dynamicMarkers.add(marker);
-                                }
+//                                for (LatLng updatedDestination : updatedDestinations) {
+//                                    Marker marker = mMap.addMarker(new MarkerOptions()
+//                                            .position(updatedDestination)
+//                                            .title("Updated Destination")
+//                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+//                                    dynamicMarkers.add(marker);
+//                                }
                                 sortPointsToFormPolygon(updatedDestinations);
                                 drawGeofencePolygon(updatedDestinations);
-
+                                mapDriver.setGeofence(updatedDestinations);
                             }
                         } else {
                             Toast.makeText(MainActivity.this, "Start point is not set", Toast.LENGTH_SHORT).show();
@@ -183,7 +183,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 break;
             case R.id.route_djikstra:
-                // Handle Djikstra route calculation
+                List<LatLng> drivers = mapDriver.getDrivers(this);
+
+                Log.d("drivers", drivers.size()+"");
+
                 break;
             // Handle other routes if needed
         }
@@ -241,8 +244,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng malang = new LatLng(-7.972124, 112.620497);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(malang, 14));
 
-        RouteLoader.loadRoutes(this); // Load routes once
-        for (Route route : RouteLoader.loadRoutes(this)) {
+        int pointsCounter = 0;
+
+        List<Route> routes = RouteLoader.loadRoutes(this); // Load routes once
+        for (Route route : routes) {
+            pointsCounter += route.getRoutePoints().size();
             MapUtils.drawRoute(mMap, route);
             polyline = route.getRoutePoints(); // Assign the polyline from the route
         }
@@ -251,5 +257,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         MarkerClickHandler.setInstance(markerClickHandler); // Store the instance
         mMap.setOnMapClickListener(markerClickHandler);
         mapDriver = new MapDriver(mMap);  // Initialize with the ready map
+
+        List<RouteLoader.Interchange> interchanges = RouteLoader.loadInterchanges(this, routes);
+        Graph graph = new Graph(pointsCounter);
+
+        for (Route route : routes) {
+            List<RoutePoint> points = route.getRoutePoints();
+            for (int i=0; i<points.size()-1; i++) {
+                for (RouteLoader.Interchange interchange : interchanges) {
+                    graph.addEdge(points.get(i), points.get(i+1));
+                    if (interchange.contains(points.get(i))) {
+                        for (RoutePoint interchangePoint : interchange.getPoints()) {
+                            if (!interchangePoint.getId().equals(points.get(i).getId())) {
+                                graph.addEdge(points.get(i), interchangePoint);
+                            }
+                        }
+                    } else {
+                        graph.addEdge(points.get(i+1), points.get(i));
+                    }
+                }
+            }
+        }
     }
 }

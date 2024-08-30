@@ -21,9 +21,43 @@ import java.util.List;
 public class MapDriver {
     private GoogleMap mMap;
     private List<Marker> dynamicMarkers = new ArrayList<>();  // Ensure it's initialized
+    private List<LatLng> geofence;
 
     public MapDriver(GoogleMap map) {
         this.mMap = map;
+        geofence = new ArrayList<>();
+    }
+
+    public void setGeofence(List<LatLng> points) {
+        geofence = points;
+    }
+
+    public void resetDriver() {
+        for (Marker marker : dynamicMarkers) {
+            marker.remove();
+        }
+
+        dynamicMarkers.clear();
+        geofence.clear();
+    }
+
+    public List<LatLng> getDrivers(Context context) {
+        List<LatLng> drivers = new ArrayList<>();
+
+        if (geofence.isEmpty()) {
+            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
+            return drivers;
+        }
+
+        List<DriverPoint> drivers_raw = loadDrivers(context);
+
+        for (DriverPoint driver : drivers_raw) {
+            LatLng dpoint = new LatLng(driver.getLatitude(), driver.getLongitude());
+            if (!GeoUtils.isCoordInsidePolygon(dpoint, geofence)) continue;
+            drivers.add(dpoint);
+        }
+
+        return drivers;
     }
 
     public void displayDriversOnMap(Context context) {
@@ -32,14 +66,16 @@ public class MapDriver {
             return;  // Exit if map is not ready
         }
 
-        List<DriverPoint> drivers = loadDrivers(context);
+        if (geofence.isEmpty()) {
+            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
+        }
+
+        List<LatLng> drivers = getDrivers(context);
         if (drivers != null) {
-            for (DriverPoint driver : drivers) {
-                LatLng driverLocation = new LatLng(driver.getLatitude(), driver.getLongitude());
+            for (LatLng driver : drivers) {
                 Marker driverMarker = mMap.addMarker(new MarkerOptions()
-                        .position(driverLocation)
-                        .title(driver.getName())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                        .position(driver)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                 dynamicMarkers.add(driverMarker);
             }
         } else {

@@ -65,7 +65,7 @@ public class MarkerClickHandler implements GoogleMap.OnMapClickListener {
                 .add(latLng, startPoint)
                 .color(Color.BLACK)
                 .pattern(Arrays.asList(new Dot(), new Gap(20))));
-        Log.d("map click", startPoint+" map click");
+        Log.d("map click", latLng+" map click");
 
     }
 

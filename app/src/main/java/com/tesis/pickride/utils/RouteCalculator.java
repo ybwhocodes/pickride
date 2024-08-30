@@ -101,6 +101,24 @@ public class RouteCalculator {
         return count > 0 ? totalSpeed / count : 0;
     }
 
+    public static double calculateDistanceInMeters(RoutePoint pointA, RoutePoint pointB) {
+        final int R = 6371000; // Radius of the Earth in meters
+        double lat1 = Math.toRadians(pointA.getLat());
+        double lat2 = Math.toRadians(pointB.getLat());
+        double lng1 = Math.toRadians(pointA.getLng());
+        double lng2 = Math.toRadians(pointB.getLng());
+
+        double deltaLat = lat2 - lat1;
+        double deltaLng = lng2 - lng1;
+
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+                Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // Distance in meters
+    }
+
     public static double getSpeedInKmPerHour(String speed) {
         switch (speed) {
             case "Fast":
