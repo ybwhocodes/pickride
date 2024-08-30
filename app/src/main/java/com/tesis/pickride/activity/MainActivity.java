@@ -34,10 +34,12 @@ import com.tesis.pickride.utils.MarkerClickHandler;
 import com.tesis.pickride.utils.RouteCalculator;
 import com.tesis.pickride.utils.RouteLoader;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
@@ -46,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Polygon currentPolygon; // Variable to hold the current polygon
     private List<RoutePoint> polyline; // Store the polyline
     private MapDriver mapDriver; // Instance of MapDriver
+
+    private Graph graph;
+    private List<Route> routes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,13 +188,76 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 break;
             case R.id.route_djikstra:
-                List<LatLng> drivers = mapDriver.getDrivers(this);
+                if (graph == null) {
+                    Toast.makeText(MainActivity.this, "Graph not ready", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (routes.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Routes not ready", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                Log.d("drivers", drivers.size()+"");
+                List<LatLng> drivers = mapDriver.getDrivers(this);
+                RoutePoint startPoint = findRoutePoint(markerClickHandler.getStartPoint());
+
+                Map<RoutePoint, Double> shortestPaths = graph.dijkstra(startPoint);
+
+                Log.d("Shortest", "driver: "+drivers.size());
+
+                RoutePoint shortest = null;
+                double shortestValue = 99999.99;
+
+                for (Map.Entry<RoutePoint, Double> entry : shortestPaths.entrySet()) {
+                    for (LatLng driver : drivers) {
+                        RoutePoint rpDriver = nearestRoutePoint(driver);
+                        if (entry.getKey().getId().equals(rpDriver.getId())) {
+                            if (entry.getValue() < shortestValue) {
+                                shortestValue = entry.getValue();
+                                shortest = entry.getKey();
+                            }
+                        }
+
+                    }
+                }
+
+                Log.d("Shortest distance ", "to ->"+shortest.getId());
 
                 break;
             // Handle other routes if needed
         }
+    }
+
+    private RoutePoint nearestRoutePoint(LatLng latLng) {
+        List<RoutePoint> points = RouteLoader.getAllRoutePoints();
+        RoutePoint nearestPoint = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (RoutePoint point : points) {
+            LatLng routePoint = new LatLng(point.getLat(), point.getLng());
+            double distance = euclideanDistance(latLng, routePoint);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPoint = point;
+            }
+        }
+
+        return nearestPoint;
+    }
+
+    private double euclideanDistance(LatLng start, LatLng end) {
+        double latDiff = start.latitude - end.latitude;
+        double lngDiff = start.longitude - end.longitude;
+        return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+    }
+
+    private RoutePoint findRoutePoint(LatLng latLng) {
+        List<RoutePoint> points = RouteLoader.getAllRoutePoints();
+
+        for (RoutePoint point : points)
+            if (point.getLat() == latLng.latitude && point.getLng() == latLng.longitude)
+                return point;
+
+        return null;
     }
 
     public void setCurrentPolygon(Polygon polygon) {
@@ -246,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int pointsCounter = 0;
 
-        List<Route> routes = RouteLoader.loadRoutes(this); // Load routes once
+        routes = RouteLoader.loadRoutes(this); // Load routes once
         for (Route route : routes) {
             pointsCounter += route.getRoutePoints().size();
             MapUtils.drawRoute(mMap, route);
@@ -259,21 +327,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapDriver = new MapDriver(mMap);  // Initialize with the ready map
 
         List<RouteLoader.Interchange> interchanges = RouteLoader.loadInterchanges(this, routes);
-        Graph graph = new Graph(pointsCounter);
+        graph = new Graph(pointsCounter);
 
         for (Route route : routes) {
             List<RoutePoint> points = route.getRoutePoints();
             for (int i=0; i<points.size()-1; i++) {
                 for (RouteLoader.Interchange interchange : interchanges) {
                     graph.addEdge(points.get(i), points.get(i+1));
+                    graph.addEdge(points.get(i+1), points.get(i));
+
                     if (interchange.contains(points.get(i))) {
                         for (RoutePoint interchangePoint : interchange.getPoints()) {
                             if (!interchangePoint.getId().equals(points.get(i).getId())) {
                                 graph.addEdge(points.get(i), interchangePoint);
                             }
                         }
-                    } else {
-                        graph.addEdge(points.get(i+1), points.get(i));
                     }
                 }
             }

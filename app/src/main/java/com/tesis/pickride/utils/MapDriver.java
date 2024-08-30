@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.tesis.pickride.model.DriverPoint;
+import com.tesis.pickride.model.RoutePoint;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -75,12 +76,36 @@ public class MapDriver {
             for (LatLng driver : drivers) {
                 Marker driverMarker = mMap.addMarker(new MarkerOptions()
                         .position(driver)
+                        .title(nearestRoutePoint(driver).getId())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                 dynamicMarkers.add(driverMarker);
             }
         } else {
             Toast.makeText(context, "Error loading drivers", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private RoutePoint nearestRoutePoint(LatLng latLng) {
+        List<RoutePoint> points = RouteLoader.getAllRoutePoints();
+        RoutePoint nearestPoint = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (RoutePoint point : points) {
+            LatLng routePoint = new LatLng(point.getLat(), point.getLng());
+            double distance = euclideanDistance(latLng, routePoint);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPoint = point;
+            }
+        }
+
+        return nearestPoint;
+    }
+
+    private double euclideanDistance(LatLng start, LatLng end) {
+        double latDiff = start.latitude - end.latitude;
+        double lngDiff = start.longitude - end.longitude;
+        return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
     }
 
     private List<DriverPoint> loadDrivers(Context context) {
