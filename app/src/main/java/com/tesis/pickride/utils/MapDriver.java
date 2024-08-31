@@ -42,7 +42,7 @@ public class MapDriver {
         geofence.clear();
     }
 
-    public List<LatLng> getDrivers(Context context) {
+    public List<LatLng> getDrivers(Context context, boolean filtered) {
         List<LatLng> drivers = new ArrayList<>();
 
         if (geofence.isEmpty()) {
@@ -54,7 +54,7 @@ public class MapDriver {
 
         for (DriverPoint driver : drivers_raw) {
             LatLng dpoint = new LatLng(driver.getLatitude(), driver.getLongitude());
-            if (!GeoUtils.isCoordInsidePolygon(dpoint, geofence)) continue;
+            if (filtered && !GeoUtils.isCoordInsidePolygon(dpoint, geofence)) continue;
             drivers.add(dpoint);
         }
 
@@ -71,7 +71,7 @@ public class MapDriver {
             Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
         }
 
-        List<LatLng> drivers = getDrivers(context);
+        List<LatLng> drivers = getDrivers(context, true);
         if (drivers != null) {
             for (LatLng driver : drivers) {
                 Marker driverMarker = mMap.addMarker(new MarkerOptions()

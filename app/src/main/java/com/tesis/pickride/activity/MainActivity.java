@@ -1,11 +1,14 @@
 package com.tesis.pickride.activity;
 
+import static java.lang.System.currentTimeMillis;
+
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Graph graph;
     private List<Route> routes;
+    private long DijkstraTime;
+    private EditText timeInput;
+    private boolean runWithTBG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFragment.getMapAsync(this);
         }
 
-        EditText timeInput = findViewById(R.id.timeInput);
+        timeInput = findViewById(R.id.timeInput);
         Button button1 = findViewById(R.id.button1);
         Button button2 = findViewById(R.id.button2);
         Button resetButton = findViewById(R.id.resetButton);
@@ -188,43 +194,71 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 break;
             case R.id.route_djikstra:
-                if (graph == null) {
-                    Toast.makeText(MainActivity.this, "Graph not ready", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (routes.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Routes not ready", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                List<LatLng> drivers = mapDriver.getDrivers(this);
-                RoutePoint startPoint = findRoutePoint(markerClickHandler.getStartPoint());
-
-                Map<RoutePoint, Double> shortestPaths = graph.dijkstra(startPoint);
-
-                Log.d("Shortest", "driver: "+drivers.size());
-
-                RoutePoint shortest = null;
-                double shortestValue = 99999.99;
-
-                for (Map.Entry<RoutePoint, Double> entry : shortestPaths.entrySet()) {
-                    for (LatLng driver : drivers) {
-                        RoutePoint rpDriver = nearestRoutePoint(driver);
-                        if (entry.getKey().getId().equals(rpDriver.getId())) {
-                            if (entry.getValue() < shortestValue) {
-                                shortestValue = entry.getValue();
-                                shortest = entry.getKey();
-                            }
-                        }
-
-                    }
-                }
-
-                Log.d("Shortest distance ", "to ->"+shortest.getId());
-
+                this.start30x(1);
                 break;
             // Handle other routes if needed
         }
+    }
+
+    private void start30x(int counter) {
+        if (counter == 11) return;
+
+        this.runDijkstra(false, counter);
+    }
+
+    private void runDijkstra(boolean filtered, int counter) {
+        Thread t = new Thread(() -> {
+
+            if (graph == null) {
+                Toast.makeText(MainActivity.this, "Graph not ready", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (routes.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Routes not ready", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            long beforeRuntime = currentTimeMillis();
+
+            List<LatLng> drivers = mapDriver.getDrivers(this, filtered);
+            RoutePoint startPoint = findRoutePoint(markerClickHandler.getStartPoint());
+
+            Map<RoutePoint, Double> shortestPaths = graph.dijkstra(startPoint);
+
+            Log.d("Shortest", "driver: "+drivers.size());
+
+            RoutePoint shortest = null;
+            double shortestValue = 99999.99;
+
+            for (Map.Entry<RoutePoint, Double> entry : shortestPaths.entrySet()) {
+                for (LatLng driver : drivers) {
+                    RoutePoint rpDriver = nearestRoutePoint(driver);
+                    if (entry.getKey().getId().equals(rpDriver.getId())) {
+                        if (entry.getValue() < shortestValue) {
+                            shortestValue = entry.getValue();
+                            shortest = entry.getKey();
+                        }
+                    }
+
+                }
+            }
+
+            long afterRuntime = currentTimeMillis();
+
+            Log.d("Shortest distance ", "to ->"+shortest.getId());
+
+            if (!filtered) {
+                this.DijkstraTime = afterRuntime - beforeRuntime;
+                this.runDijkstra(true, counter);
+            }
+            else {
+                // source, time geofence, processing time dijkstra, processing time tbg
+                Log.d("collecting data", markerClickHandler.getStartPoint()+","+timeInput.getText()+","+this.DijkstraTime+","+(afterRuntime-beforeRuntime));
+                this.start30x(counter+1);
+            }
+        });
+
+        t.start();
     }
 
     private RoutePoint nearestRoutePoint(LatLng latLng) {
