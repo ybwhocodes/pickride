@@ -2,6 +2,7 @@ package com.tesis.pickride.utils;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -11,20 +12,58 @@ import java.util.List;
 public class GeoUtils {
   private final static double EARTH_RADIUS = 6371008.8;
 
+  // Method to check if a coordinate is inside a circular geofence defined by CircleOptions
+  public static boolean isCoordInsideCircle(LatLng coord, CircleOptions circleOptions) {
+    // Get the center and radius of the circle
+    LatLng center = circleOptions.getCenter();
+    double radius = circleOptions.getRadius();  // Radius in meters
+
+    // Calculate the distance between the center of the circle and the given coordinate
+    double distance = calculateDistanceInMeters(center, coord);
+
+    // If the distance is less than or equal to the radius, the coordinate is inside the circle
+    return distance <= radius;
+  }
+
+  // Helper method to calculate the distance between two LatLng points in meters
+  private static double calculateDistanceInMeters(LatLng point1, LatLng point2) {
+    final int EARTH_RADIUS = 6371000; // Radius of the Earth in meters
+
+    double lat1 = Math.toRadians(point1.latitude);
+    double lon1 = Math.toRadians(point1.longitude);
+    double lat2 = Math.toRadians(point2.latitude);
+    double lon2 = Math.toRadians(point2.longitude);
+
+    double deltaLat = lat2 - lat1;
+    double deltaLon = lon2 - lon1;
+
+    double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+                    Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return EARTH_RADIUS * c;  // Distance in meters
+  }
+
   public static boolean isCoordInsidePolygon(LatLng coord, List<LatLng> polygon) {
     double x = coord.longitude;
     double y = coord.latitude;
     boolean inside = false;
 
-    for (int i = 0, j = 1; j < polygon.size(); i = j++) {
+    int n = polygon.size();
+    for (int i = 0, j = n - 1; i < n; j = i++) {
       double xi = polygon.get(i).longitude;
       double yi = polygon.get(i).latitude;
-
       double xj = polygon.get(j).longitude;
       double yj = polygon.get(j).latitude;
 
-      boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-      if (intersect) inside = !inside;
+      // Check if the ray intersects with the edge of the polygon
+      boolean intersect = ((yi > y) != (yj > y)) &&
+              (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) {
+        inside = !inside;
+      }
     }
 
     return inside;

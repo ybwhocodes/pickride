@@ -1,8 +1,10 @@
 package com.tesis.pickride.activity;
 
+import static com.tesis.pickride.utils.GeoUtils.isCoordInsideCircle;
 import static java.lang.System.currentTimeMillis;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -29,8 +33,10 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.tesis.pickride.R;
 import com.tesis.pickride.core.GeofenceTime;
 import com.tesis.pickride.core.Graph;
+import com.tesis.pickride.model.DriverPoint;
 import com.tesis.pickride.model.Route;
 import com.tesis.pickride.model.RoutePoint;
+import com.tesis.pickride.utils.GeoUtils;
 import com.tesis.pickride.utils.MapDriver;
 import com.tesis.pickride.utils.MapUtils;
 import com.tesis.pickride.utils.MarkerClickHandler;
@@ -48,7 +54,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private MarkerClickHandler markerClickHandler;
     private List<Marker> dynamicMarkers = new ArrayList<>();
-    private Polygon currentPolygon; // Variable to hold the current polygon
+    private Polygon currentPolygon;
+
+    private Circle currentCircle;
     private List<RoutePoint> polyline; // Store the polyline
     private MapDriver mapDriver; // Instance of MapDriver
 
@@ -57,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private long DijkstraTime;
     private EditText timeInput;
     private boolean runWithTBG;
+    private List<Marker> driverMarkers = new ArrayList<>();
+    List<LatLng> drivers_circle = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +118,81 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 currentPolygon.remove();
                 currentPolygon = null;
             }
+            // Remove the geofence (circle) if it exists
+            if (currentCircle != null) {
+                currentCircle.remove();
+                currentCircle = null;
+            }
+
+            for (Marker marker : driverMarkers) {
+                marker.remove();  // Remove the marker from the map
+            }
+            // Clear the list after all markers are removed
+            driverMarkers.clear();
+            drivers_circle.clear();
         });
     }
+
+    // Method to set a circular geofence with the calculated radius
+    // Method to set a circular geofence with the calculated radius and filter drivers within it
+    private void setCircularGeofence(LatLng center, int timeInMinutes, GoogleMap map, Context context) {
+        // Convert time in minutes to hours
+        double timeInHours = timeInMinutes / 60.0;
+
+        // Set the average speed in km/h
+        double averageSpeed = 50;
+
+        // Calculate the radius in meters (half distance traveled at average speed)
+        double radius = (((averageSpeed * timeInHours) / 2) * 1000);
+
+        // Check if there is an existing circle and remove it
+        if (currentCircle != null) {
+            currentCircle.remove();
+        }
+
+        // Create a circular geofence using Google Maps API
+        CircleOptions circleOptions = new CircleOptions()
+                .center(center)  // Set center of the geofence
+                .radius(radius)  // Radius in meters
+                .strokeColor(Color.RED)  // Circle border color
+                .fillColor(0x30FF0000)  // Circle fill color with transparency
+                .strokeWidth(2);  // Border width
+
+        // Add the circular geofence to the map and save reference
+        currentCircle = map.addCircle(circleOptions);
+
+        // Inform the user of the geofence radius set
+        Toast.makeText(this, "Geofence set with radius: " + radius + " meters", Toast.LENGTH_SHORT).show();
+
+        // Load drivers and filter them within the geofence
+        List<DriverPoint> drivers_raw = MapDriver.loadDrivers(this);  // Load drivers
+
+        // Filter drivers within the geofence
+        for (DriverPoint driver : drivers_raw) {
+            LatLng dpoint = new LatLng(driver.getLatitude(), driver.getLongitude());
+
+            // Check if the driver's location is inside the circular geofence
+            if (isCoordInsideCircle(dpoint, circleOptions)) {
+                drivers_circle.add(dpoint);
+            }
+        }
+        Log.d("Total-Driver", "driver: "+drivers_circle.size());
+
+        // Optionally, do something with the filtered list of drivers (e.g., display them on the map)
+        displayDriversOnMapCircular(drivers_circle, map);
+    }
+
+    // Example method to display drivers on the map (You can adjust it as needed)
+    private void displayDriversOnMapCircular(List<LatLng> drivers, GoogleMap map) {
+        for (LatLng driver : drivers) {
+            Marker marker = map.addMarker(new MarkerOptions().position(driver).title("Driver"));
+            if (marker != null) {
+                driverMarkers.add(marker);  // Keep track of the added marker
+            }
+        }
+    }
+
+
 
     @SuppressLint("NonConstantResourceId")
     private void handleButton1Selection(MenuItem item, EditText timeInput) {
@@ -118,18 +202,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (!TextUtils.isEmpty(timeStr)) {
                     try {
                         int timeInMinutes = Integer.parseInt(timeStr);
-                        // Clear previous polygon if exists
-                        if (currentPolygon != null) {
-                            currentPolygon.remove();
-                        }
-                        List<LatLng> destinations = RouteCalculator.calculateDestinations(MainActivity.this, mMap, timeInMinutes);
-                        for (LatLng destination : destinations) {
-                            Marker marker = mMap.addMarker(new MarkerOptions()
-                                    .position(destination)
-                                    .title("Destination")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                            dynamicMarkers.add(marker);
-                        }
+                        LatLng startPoint = markerClickHandler.getStartPoint();
+
+                        // Clear previous circle if exists and set a new circular geofence
+                        setCircularGeofence(startPoint, timeInMinutes, mMap,this);  // Assuming 'googleMap' is your instance of GoogleMap
+
                     } catch (NumberFormatException e) {
                         Toast.makeText(MainActivity.this, "Invalid input", Toast.LENGTH_SHORT).show();
                     }
@@ -157,15 +234,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             if (updatedDestinations.size() != destinations.size()) {
                                 Toast.makeText(MainActivity.this, "Data tidak valid", Toast.LENGTH_LONG).show();
                             }else {
-                                // Add new markers
-//                                Toast.makeText(MainActivity.this, "Data Update = " + updatedDestinations.size() + " Data Old =  "+ destinations.size(), Toast.LENGTH_LONG).show();
-//                                for (LatLng updatedDestination : updatedDestinations) {
-//                                    Marker marker = mMap.addMarker(new MarkerOptions()
-//                                            .position(updatedDestination)
-//                                            .title("Updated Destination")
-//                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-//                                    dynamicMarkers.add(marker);
-//                                }
                                 sortPointsToFormPolygon(updatedDestinations);
                                 drawGeofencePolygon(updatedDestinations);
                                 mapDriver.setGeofence(updatedDestinations);
@@ -179,6 +247,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Toast.makeText(MainActivity.this, "Please enter time in minutes", Toast.LENGTH_SHORT).show();
                 }
+
+                try {
+                    mapDriver.displayDriversOnMap(this);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Error" + e, Toast.LENGTH_LONG).show();
+                }
                 break;
         }
     }
@@ -187,11 +261,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void handleButton2Selection(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.route_a_star:
-                try {
-                    mapDriver.displayDriversOnMap(this);
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "Error" + e, Toast.LENGTH_LONG).show();
-                }
+
                 break;
             case R.id.route_djikstra:
                 this.start30x(1);

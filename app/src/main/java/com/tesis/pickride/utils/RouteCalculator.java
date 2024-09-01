@@ -16,6 +16,8 @@ import java.util.List;
 
 public class RouteCalculator {
 
+
+
     public static List<LatLng> calculateDestinations(Context context, GoogleMap map, int timeInMinutes) {
         MarkerClickHandler markerClickHandler = MarkerClickHandler.getInstance();
         LatLng startPoint = markerClickHandler.getStartPoint();

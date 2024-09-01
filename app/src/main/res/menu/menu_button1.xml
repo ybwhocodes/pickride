@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/calculatePoint"
-        android:title="Calculate Point" />
+        android:title="Circular Geofence" />
     <item
         android:id="@+id/buildGeofence"
-        android:title="Build Geofence" />
+        android:title="TBG Geofence" />
 </menu>

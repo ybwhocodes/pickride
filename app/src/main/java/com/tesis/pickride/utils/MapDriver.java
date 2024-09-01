@@ -1,6 +1,7 @@
 package com.tesis.pickride.utils;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -43,11 +44,12 @@ public class MapDriver {
     }
 
     public List<LatLng> getDrivers(Context context, boolean filtered) {
-        List<LatLng> drivers = new ArrayList<>();
+        List<LatLng> drivers_tbg = new ArrayList<>();
+
 
         if (geofence.isEmpty()) {
             Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
-            return drivers;
+            return drivers_tbg;
         }
 
         List<DriverPoint> drivers_raw = loadDrivers(context);
@@ -55,10 +57,10 @@ public class MapDriver {
         for (DriverPoint driver : drivers_raw) {
             LatLng dpoint = new LatLng(driver.getLatitude(), driver.getLongitude());
             if (filtered && !GeoUtils.isCoordInsidePolygon(dpoint, geofence)) continue;
-            drivers.add(dpoint);
+            drivers_tbg.add(dpoint);
         }
 
-        return drivers;
+        return drivers_tbg;
     }
 
     public void displayDriversOnMap(Context context) {
@@ -72,6 +74,9 @@ public class MapDriver {
         }
 
         List<LatLng> drivers = getDrivers(context, true);
+
+        Log.d("Total-Driver", "driver: "+drivers.size());
+
         if (drivers != null) {
             for (LatLng driver : drivers) {
                 Marker driverMarker = mMap.addMarker(new MarkerOptions()
@@ -108,7 +113,7 @@ public class MapDriver {
         return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
     }
 
-    private List<DriverPoint> loadDrivers(Context context) {
+    public static List<DriverPoint> loadDrivers(Context context) {
         List<DriverPoint> drivers = new ArrayList<>();
         try {
             String jsonStr = loadJSONFromAsset(context, "driver.json");

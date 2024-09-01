@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
         <item
             android:id="@+id/route_a_star"
-            android:title="Route A-Star" />
+            android:title="Route CG + Djikstra" />
         <item
             android:id="@+id/route_djikstra"
-            android:title="Route Djikstra" />
+            android:title="Route TBG + Djikstra" />
         <!-- Add other items if needed -->
 
 </menu>
