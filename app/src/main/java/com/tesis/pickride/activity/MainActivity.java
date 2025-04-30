@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -37,7 +36,6 @@ import com.tesis.pickride.utils.MarkerClickHandler;
 import com.tesis.pickride.utils.RouteCalculator;
 import com.tesis.pickride.utils.RouteLoader;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -118,11 +116,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (!TextUtils.isEmpty(timeStr)) {
                     try {
                         int timeInMinutes = Integer.parseInt(timeStr);
+                        LatLng startPoint = markerClickHandler.getStartPoint();
                         // Clear previous polygon if exists
                         if (currentPolygon != null) {
                             currentPolygon.remove();
                         }
-                        List<LatLng> destinations = RouteCalculator.calculateDestinations(MainActivity.this, mMap, timeInMinutes);
+                        List<LatLng> destinations = RouteCalculator.calculateDestinations(MainActivity.this, startPoint, mMap, timeInMinutes);
                         for (LatLng destination : destinations) {
                             Marker marker = mMap.addMarker(new MarkerOptions()
                                     .position(destination)
@@ -152,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 currentPolygon.remove();
                             }
 
-                            List<LatLng> destinations = RouteCalculator.calculateDestinations(MainActivity.this, mMap, timeInMinutes);
+                            List<LatLng> destinations = RouteCalculator.calculateDestinations(MainActivity.this, startPoint, mMap, timeInMinutes);
                             List<LatLng> updatedDestinations = GeofenceTime.updateDestinations(MainActivity.this, startPoint, destinations, timeInMinutes, polyline);
                             if (updatedDestinations.size() != destinations.size()) {
                                 Toast.makeText(MainActivity.this, "Data tidak valid", Toast.LENGTH_LONG).show();
@@ -201,8 +200,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void start30x(int counter) {
-        if (counter == 11) return;
-
+        if (counter == 2) return;
         this.runDijkstra(false, counter);
     }
 
@@ -261,6 +259,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         t.start();
     }
 
+
+
     private RoutePoint nearestRoutePoint(LatLng latLng) {
         List<RoutePoint> points = RouteLoader.getAllRoutePoints();
         RoutePoint nearestPoint = null;
@@ -292,13 +292,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return point;
 
         return null;
-    }
-
-    public void setCurrentPolygon(Polygon polygon) {
-        this.currentPolygon = polygon;
-    }
-    public Polygon getCurrentPolygon() {
-        return currentPolygon;
     }
     private void sortPointsToFormPolygon(List<LatLng> points) {
         if (points.size() < 3) return; // Not enough points to form a polygon

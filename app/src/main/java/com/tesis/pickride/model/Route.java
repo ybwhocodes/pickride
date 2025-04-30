@@ -17,4 +17,5 @@ public class Route {
     public List<RoutePoint> getRoutePoints() {
         return routePoints;
     }
+
 }

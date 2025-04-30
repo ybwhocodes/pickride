@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class RouteLoader {
     private static List<Route> routes = new ArrayList<>();
@@ -26,8 +27,6 @@ public class RouteLoader {
 
         if (routes.isEmpty()) {
             String jsonStr = loadJSONFromAsset(context, "map-route.json");
-
-
             if (jsonStr != null) {
                 try {
                     JSONArray jsonArray = new JSONArray(jsonStr);
@@ -57,6 +56,26 @@ public class RouteLoader {
         return routes;
     }
 
+    // Fungsi untuk mengambil titik latitude dan longitude secara acak
+    public static RoutePoint getRandomRoutePoint(Context context) {
+        List<Route> allRoutes = loadRoutes(context); // Memuat semua rute
+        Random random = new Random(); // Pembuat angka acak
+
+        if (allRoutes.isEmpty()) {
+            return null; // Mengembalikan null jika tidak ada rute
+        }
+
+        // Memilih rute acak
+        Route randomRoute = allRoutes.get(random.nextInt(allRoutes.size()));
+        List<RoutePoint> routePoints = randomRoute.getRoutePoints();
+
+        if (routePoints.isEmpty()) {
+            return null; // Mengembalikan null jika rute terpilih tidak memiliki titik
+        }
+
+        // Memilih titik acak dari rute yang terpilih
+        return routePoints.get(random.nextInt(routePoints.size()));
+    }
     public static List<RoutePoint> getAllRoutePoints() {
         List<RoutePoint> allPoints = new ArrayList<>();
         for (Route route : routes) {

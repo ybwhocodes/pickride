@@ -46,7 +46,7 @@ public class MapDriver {
         List<LatLng> drivers = new ArrayList<>();
 
         if (geofence.isEmpty()) {
-            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
             return drivers;
         }
 
@@ -62,14 +62,14 @@ public class MapDriver {
     }
 
     public void displayDriversOnMap(Context context) {
-        if (mMap == null) {
-            Toast.makeText(context, "Map is not ready yet", Toast.LENGTH_SHORT).show();
-            return;  // Exit if map is not ready
-        }
-
-        if (geofence.isEmpty()) {
-            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
-        }
+//        if (mMap == null) {
+//            Toast.makeText(context, "Map is not ready yet", Toast.LENGTH_SHORT).show();
+//            return;  // Exit if map is not ready
+//        }
+//
+//        if (geofence.isEmpty()) {
+//            Toast.makeText(context, "Geofence is not ready yet", Toast.LENGTH_SHORT).show();
+//        }
 
         List<LatLng> drivers = getDrivers(context, true);
         if (drivers != null) {
@@ -82,6 +82,27 @@ public class MapDriver {
             }
         } else {
             Toast.makeText(context, "Error loading drivers", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void displayAllDriversOnMap(Context context) {
+        if (mMap == null) {
+            Toast.makeText(context, "Map is not ready yet", Toast.LENGTH_SHORT).show();
+            return;  // Exit if map is not ready
+        }
+
+        List<DriverPoint> drivers_raw = loadDrivers(context);
+
+        if (drivers_raw != null && !drivers_raw.isEmpty()) {
+            for (DriverPoint driver : drivers_raw) {
+                LatLng driverLocation = new LatLng(driver.getLatitude(), driver.getLongitude());
+                Marker driverMarker = mMap.addMarker(new MarkerOptions()
+                        .position(driverLocation)
+                        .title(driver.getName()) // Pakai nama driver sebagai title
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))); // Atau warna lain
+                dynamicMarkers.add(driverMarker);
+            }
+        } else {
+            Toast.makeText(context, "No drivers found", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -1,244 +1,42 @@
 [
   {
     "drivers": [
-      {
-        "name": "Driver 1",
-        "coordinates": {
-          "lat": -7.956448,
-          "lng": 112.630033
-        }
-      },
-      {
-        "name": "Driver 2",
-        "coordinates": {
-          "lat": -7.956144,
-          "lng": 112.625668
-        }
-      },
-      {
-        "name": "Driver 4",
-        "coordinates": {
-          "lat": -7.956118,
-          "lng": 112.620749
-        }
-      },
-      {
-        "name": "Driver 5",
-        "coordinates": {
-          "lat": -7.971773,
-          "lng": 112.612834
-        }
-      },
-      {
-        "name": "Driver 6",
-        "coordinates": {
-          "lat": -7.963710458135088,
-          "lng": 112.61619329452515
-        }
-      },
-      {
-        "name": "Driver 7",
-        "coordinates": {
-          "lat": -7.967986,
-          "lng": 112.621196
-        }
-      },
-      {
-        "name": "Driver 8",
-        "coordinates": {
-          "lat": -7.97486,
-          "lng": 112.620674
-        }
-      },
-      {
-        "name": "Driver 9",
-        "coordinates": {
-          "lat": -7.973448,
-          "lng": 112.612268
-        }
-      },
-      {
-        "name": "Driver 10",
-        "coordinates": {
-          "lat": -7.965271,
-          "lng": 112.619835
-        }
-      },
-      {
-        "name": "Driver 11",
-        "coordinates": {
-          "lat": -7.969222,
-          "lng": 112.628127
-        }
-      },
-      {
-        "name": "Driver 12",
-        "coordinates": {
-          "lat": -7.967505,
-          "lng": 112.613255
-        }
-      },
-      {
-        "name": "Driver 13",
-        "coordinates": {
-          "lat": -7.971576,
-          "lng": 112.618957
-        }
-      },
-      {
-        "name": "Driver 14",
-        "coordinates": {
-          "lat": -7.966002,
-          "lng": 112.622597
-        }
-      },
-      {
-        "name": "Driver 15",
-        "coordinates": {
-          "lat": -7.960792,
-          "lng": 112.622741
-        }
-      },
-      {
-        "name": "Driver 16",
-        "coordinates": {
-          "lat": -7.974462,
-          "lng": 112.621797
-        }
-      },
-      {
-        "name": "Driver 17",
-        "coordinates": {
-          "lat": -7.964416,
-          "lng": 112.62123
-        }
-      },
-      {
-        "name": "Driver 18",
-        "coordinates": {
-          "lat": -7.96234,
-          "lng": 112.628706
-        }
-      },
-      {
-        "name": "Driver 19",
-        "coordinates": {
-          "lat": -7.963282,
-          "lng": 112.624091
-        }
-      },
-      {
-        "name": "Driver 20",
-        "coordinates": {
-          "lat": -7.97776,
-          "lng": 112.621634
-        }
-      },
-      {
-        "name": "Driver 21",
-        "coordinates": {
-          "lat": -7.962375,
-          "lng": 112.61923
-        }
-      },
-      {
-        "name": "Driver 22",
-        "coordinates": {
-          "lat": -7.975183,
-          "lng": 112.628531
-        }
-      },
-      {
-        "name": "Driver 23",
-        "coordinates": {
-          "lat": -7.961215,
-          "lng": 112.616588
-        }
-      },
-      {
-        "name": "Driver 24",
-        "coordinates": {
-          "lat": -7.96381,
-          "lng": 112.628232
-        }
-      },
-      {
-        "name": "Driver 25",
-        "coordinates": {
-          "lat": -7.975957,
-          "lng": 112.613504
-        }
-      },
-      {
-        "name": "Driver 26",
-        "coordinates": {
-          "lat": -7.9723575,
-          "lng": 112.621964
-        }
-      },
-      {
-        "name": "Driver 27",
-        "coordinates": {
-          "lat": -7.9578979,
-          "lng": 112.6234681
-        }
-      },
-      {
-        "name": "Driver 28",
-        "coordinates": {
-          "lat": -7.9584504,
-          "lng": 112.6229746
-        }
-      },
-      {
-        "name": "Driver 29",
-        "coordinates": {
-          "lat": -7.967303808794202,
-          "lng": 112.62477803975344
-        }
-      },
-      {
-        "name": "Driver 30",
-        "coordinates": {
-          "lat": -7.972145,
-          "lng": 112.6218352
-        }
-      },
-      {
-        "name": "Driver 31",
-        "coordinates": {
-          "lat": -7.9599779,
-          "lng": 112.6216971
-        }
-      },
-      {
-        "name": "Driver 32",
-        "coordinates": {
-          "lat": -7.9621323,
-          "lng": 112.625913
-        }
-      },
-      {
-        "name": "Driver 33",
-        "coordinates": {
-          "lat": -7.969363778630638,
-          "lng": 112.61684071272612
-        }
-      },
-      {
-        "name": "Driver 34",
-        "coordinates": {
-          "lat": -7.9726471,
-          "lng": 112.622546
-        }
-      },
-      {
-        "name": "Driver 35",
-        "coordinates": {
-          "lat": -7.9605118,
-          "lng": 112.6257641
-        }
-      }
+      {"name": "Driver 1", "coordinates": {"lat": -7.9733593, "lng": 112.6129939}},
+      {"name": "Driver 2", "coordinates": {"lat": -7.9721467, "lng": 112.6132101}},
+      {"name": "Driver 3", "coordinates": {"lat": -7.9688426, "lng": 112.6134331}},
+      {"name": "Driver 4", "coordinates": {"lat": -7.9728116, "lng": 112.6165433}},
+      {"name": "Driver 5", "coordinates": {"lat": -7.9701911, "lng": 112.615783}},
+      {"name": "Driver 6", "coordinates": {"lat": -7.9722186, "lng": 112.6190357}},
+      {"name": "Driver 7", "coordinates": {"lat": -7.9750539, "lng": 112.6197501}},
+      {"name": "Driver 8", "coordinates": {"lat": -7.9764207, "lng": 112.6230619}},
+      {"name": "Driver 9", "coordinates": {"lat": -7.9764251, "lng": 112.625482}},
+      {"name": "Driver 10", "coordinates": {"lat": -7.9740331, "lng": 112.6249163}},
+      {"name": "Driver 11", "coordinates": {"lat": -7.9713352, "lng": 112.6220144}},
+      {"name": "Driver 12", "coordinates": {"lat": -7.9697557, "lng": 112.6186319}},
+      {"name": "Driver 13", "coordinates": {"lat": -7.9684129, "lng": 112.6210609}},
+      {"name": "Driver 14", "coordinates": {"lat": -7.9669818, "lng": 112.617013}},
+      {"name": "Driver 15", "coordinates": { "lat": -7.970097, "lng": 112.6246435}},
+      {"name": "Driver 16", "coordinates": {"lat": -7.9639822, "lng": 112.6144591}},
+      {"name": "Driver 17", "coordinates": {  "lat": -7.9721127, "lng": 112.6269879}},
+      {"name": "Driver 18", "coordinates": { "lat": -7.968084, "lng": 112.6256655}},
+      {"name": "Driver 19", "coordinates": { "lat": -7.9665246, "lng": 112.6244502}},
+      {"name": "Driver 20", "coordinates": { "lat": -7.9589392, "lng": 112.6244551}},
+      {"name": "Driver 21", "coordinates": { "lat": -7.9566942, "lng": 112.6166559}},
+      {"name": "Driver 22", "coordinates": { "lat": -7.9621915, "lng": 112.6133965}},
+      {"name": "Driver 23", "coordinates": { "lat": -7.9647419, "lng": 112.620482}},
+      {"name": "Driver 24", "coordinates": {"lat": -7.9673314, "lng": 112.6205275}},
+      {"name": "Driver 25", "coordinates": {  "lat": -7.9661605, "lng": 112.6164544}},
+      {"name": "Driver 26", "coordinates": {  "lat": -7.9584972, "lng": 112.6135628}},
+      {"name": "Driver 27", "coordinates": {"lat": -7.9613379, "lng": 112.6211204}},
+      {"name": "Driver 28", "coordinates": {"lat": -7.9605398, "lng": 112.6224554}},
+      {"name": "Driver 29", "coordinates": {"lat": -7.9583915, "lng": 112.6198483}},
+      {"name": "Driver 30", "coordinates": {"lat": -7.9661079, "lng": 112.6182397}},
+      {"name": "Driver 31", "coordinates": {"lat": -7.9634327, "lng": 112.6220528}},
+      {"name": "Driver 32", "coordinates": {"lat": -7.9623613, "lng": 112.623118}},
+      {"name": "Driver 33", "coordinates": {"lat": -7.9632318, "lng": 112.6248973}},
+      {"name": "Driver 34", "coordinates": {"lat": -7.9620513, "lng": 112.6250933}},
+      {"name": "Driver 35", "coordinates": {"lat": -7.9632159, "lng": 112.625477}},
+      {"name": "Driver 36", "coordinates": {"lat": -7.9635094, "lng": 112.6224736}}
     ]
   }
 ]

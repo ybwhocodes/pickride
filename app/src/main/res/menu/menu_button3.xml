@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item
+            android:id="@+id/tbg_djikstra"
+            android:title="TBG Djikstra" />
+        <item
+            android:id="@+id/tbg_astar_md"
+            android:title="TBG A-star (Manhattan Distance)" />
+        <item
+            android:id="@+id/tbg_astar_ed"
+            android:title="TBG A-star (Euclidean Distance)" />
+        <item
+            android:id="@+id/tbg_astar_hf"
+            android:title="TBG A-star (Haversine Formula)" />
+        <!-- Add other items if needed -->
+
+</menu>

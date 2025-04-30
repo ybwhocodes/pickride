@@ -7,7 +7,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.tesis.pickride.activity.MainActivity;
+import com.tesis.pickride.activity.MasterActivity;
 import com.tesis.pickride.model.Route;
 import com.tesis.pickride.model.RoutePoint;
 
@@ -16,9 +16,7 @@ import java.util.List;
 
 public class RouteCalculator {
 
-    public static List<LatLng> calculateDestinations(Context context, GoogleMap map, int timeInMinutes) {
-        MarkerClickHandler markerClickHandler = MarkerClickHandler.getInstance();
-        LatLng startPoint = markerClickHandler.getStartPoint();
+    public static List<LatLng> calculateDestinations(Context context, LatLng startPoint, GoogleMap map, int timeInMinutes) {
 
         if (startPoint == null) {
             Toast.makeText(context, "Start point is not set", Toast.LENGTH_SHORT).show();
@@ -49,7 +47,7 @@ public class RouteCalculator {
         }
 
         // Store the current polygon to be used for resetting
-        ((MainActivity) context).setCurrentPolygon(circlePolygon);
+        ((MasterActivity) context).setCurrentPolygon(circlePolygon);
 
         return destinations;
     }
